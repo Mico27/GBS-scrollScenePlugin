@@ -149,6 +149,11 @@ void transition_load_scene(UBYTE scene_bank, const scene_t * scene, BYTE t_scrol
     // reset music events
     music_init_events(FALSE);
 	load_scene(scene, scene_bank, TRUE);	
+	//reinitialize initial positions after loading scene
+	initial_player_x_pos = 0;
+	initial_player_y_pos = 0;
+	initial_camera_x = 0;
+	initial_camera_y = 0;
 }
 
 uint8_t transition_camera_to(void) BANKED {
