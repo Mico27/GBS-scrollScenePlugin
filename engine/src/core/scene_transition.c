@@ -19,6 +19,7 @@
 #include "projectiles.h"
 #include "shadow.h"
 #include "music_manager.h"
+#include "vm.h"
 
 #define TILE_FRACTION_MASK         0b1111111
 #define ONE_TILE_DISTANCE          128
@@ -35,8 +36,8 @@ UINT16 transitioning_player_pos_y;
 
 void enable_transition_to_scene(void) BANKED {
 	camera_settings &= ~(CAMERA_LOCK_FLAG);
-	camera_x = SCROLL_CAM_X;
-	camera_y = SCROLL_CAM_Y;
+	//camera_x = SCROLL_CAM_X;
+	//camera_y = SCROLL_CAM_Y;
 	scene_transition_enabled = 1;
 }
 
@@ -114,9 +115,10 @@ void transition_to_scene_modal(UBYTE direction) BANKED {
 		do {
 			uint8_t camera_arrived = transition_camera_to();
 			uint8_t player_arrived = transition_player_to();
-			if (camera_arrived && player_arrived) {
-				is_transitioning_scene = 0;
-			}
+			
+			
+			script_runner_update();	
+			
 			ui_update();
 	
 			toggle_shadow_OAM();
@@ -129,6 +131,11 @@ void transition_to_scene_modal(UBYTE direction) BANKED {
 			game_time++;
 			wait_vbl_done();
 			input_update();
+			
+			if (camera_arrived && player_arrived) {
+				scroll_reset();
+				is_transitioning_scene = 0;
+			}
 		} while (is_transitioning_scene);
 	}
 }
