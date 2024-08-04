@@ -23,6 +23,8 @@
 
 #define TILE_FRACTION_MASK         0b1111111
 #define ONE_TILE_DISTANCE          128
+#define TRANSITION_DISTANCE		   256
+#define HALF_TRANSITION_DISTANCE   128
 
 UBYTE scene_transition_enabled;
 UBYTE is_transitioning_scene;
@@ -47,19 +49,17 @@ void scene_transition_reset(void) BANKED {
 	down_scene.bank = 0;
 	left_scene.bank = 0;
 	scene_transition_enabled = 0;
-	transitioning_player_pos_x = 0xFFF;
-	transitioning_player_pos_y = 0xFFF;
 }
 
 void check_transition_to_scene_collision(void) BANKED {	
-	if (scene_transition_enabled && !PLAYER.disabled) {
+	if (scene_transition_enabled && !is_transitioning_scene && !PLAYER.disabled) {		
 		// Check for scene scroll
 		if (transitioning_player_pos_y != PLAYER.pos.y)
 		{
 			transitioning_player_pos_y = 0xFFF;
-			if ((PLAYER.pos.y) > 0xFFF || (PLAYER.pos.y) < 128){
+			if ((PLAYER.pos.y) > 0xFFF || (PLAYER.pos.y) < HALF_TRANSITION_DISTANCE){
 				transition_to_scene_modal(DIRECTION_UP);				
-			} else if (PLAYER.pos.y >= ((image_tile_height * 128) - 128)){
+			} else if (PLAYER.pos.y >= ((image_tile_height << 7) - HALF_TRANSITION_DISTANCE)){
 				transition_to_scene_modal(DIRECTION_DOWN);		
 			}
 		}
@@ -68,7 +68,7 @@ void check_transition_to_scene_collision(void) BANKED {
 			transitioning_player_pos_x = 0xFFF;
 			if ((PLAYER.pos.x) > 0xFFF){
 				transition_to_scene_modal(DIRECTION_LEFT);
-			} else if (PLAYER.pos.x >= ((image_tile_width * 128) - 256)){
+			} else if (PLAYER.pos.x >= ((image_tile_width << 7) - TRANSITION_DISTANCE)){
 				transition_to_scene_modal(DIRECTION_RIGHT);
 			}
 		}
@@ -94,8 +94,8 @@ void transition_to_scene_modal(UBYTE direction) BANKED {
 	if (scene_bank && scene){
 		is_transitioning_scene = 1;
 		transition_load_scene(scene_bank, scene, (direction == DIRECTION_RIGHT)? image_tile_width: (direction == DIRECTION_LEFT)? -image_tile_width: 0, (direction == DIRECTION_DOWN)? image_tile_height: (direction == DIRECTION_UP)? -image_tile_height: 0);
-		transitioning_player_pos_x = PLAYER.pos.x + ((direction == DIRECTION_RIGHT)? 256: (direction == DIRECTION_LEFT)? -256: 0);
-		transitioning_player_pos_y = PLAYER.pos.y + ((direction == DIRECTION_DOWN)? 256: (direction == DIRECTION_UP)? -256: 0);
+		transitioning_player_pos_x = PLAYER.pos.x + ((direction == DIRECTION_RIGHT)? TRANSITION_DISTANCE: (direction == DIRECTION_LEFT)? -TRANSITION_DISTANCE: 0);
+		transitioning_player_pos_y = PLAYER.pos.y + ((direction == DIRECTION_DOWN)? TRANSITION_DISTANCE: (direction == DIRECTION_UP)? -TRANSITION_DISTANCE: 0);
 		if (round_position_flags & direction){		
 			transitioning_player_pos_x = (transitioning_player_pos_x  & ~TILE_FRACTION_MASK);
 			transitioning_player_pos_y = (transitioning_player_pos_y  & ~TILE_FRACTION_MASK);
@@ -112,13 +112,16 @@ void transition_to_scene_modal(UBYTE direction) BANKED {
 		} else if (direction == DIRECTION_UP){
 			scroll_queue_row(0, (scroll_y >> 3) - 1);
 		}
+		uint8_t camera_arrived = FALSE;
+		uint8_t player_arrived = FALSE;
 		do {
-			uint8_t camera_arrived = transition_camera_to();
-			uint8_t player_arrived = transition_player_to();
-			
-			
 			script_runner_update();	
 			
+			if (!VM_ISLOCKED()){
+				camera_arrived = transition_camera_to();
+				player_arrived = transition_player_to();
+			}
+						
 			ui_update();
 	
 			toggle_shadow_OAM();
