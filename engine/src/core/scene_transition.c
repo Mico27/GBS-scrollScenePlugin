@@ -59,7 +59,7 @@ void check_transition_to_scene_collision(void) BANKED {
 			transitioning_player_pos_y = 0xFFF;
 			if ((PLAYER.pos.y) > 0xFFF || (PLAYER.pos.y) < HALF_TRANSITION_DISTANCE){
 				transition_to_scene_modal(DIRECTION_UP);				
-			} else if (PLAYER.pos.y >= ((image_tile_height << 7) - HALF_TRANSITION_DISTANCE + 16)){
+			} else if (PLAYER.pos.y > ((image_tile_height << 7) - HALF_TRANSITION_DISTANCE)){
 				transition_to_scene_modal(DIRECTION_DOWN);		
 			}
 		}
@@ -68,7 +68,7 @@ void check_transition_to_scene_collision(void) BANKED {
 			transitioning_player_pos_x = 0xFFF;
 			if ((PLAYER.pos.x) > 0xFFF){
 				transition_to_scene_modal(DIRECTION_LEFT);
-			} else if (PLAYER.pos.x >= ((image_tile_width << 7) - TRANSITION_DISTANCE  + 16)){
+			} else if (PLAYER.pos.x > ((image_tile_width << 7) - TRANSITION_DISTANCE)){
 				transition_to_scene_modal(DIRECTION_RIGHT);
 			}
 		}
