@@ -33,8 +33,8 @@ far_ptr_t right_scene;
 far_ptr_t down_scene;
 far_ptr_t left_scene;
 UBYTE round_position_flags;
-UINT16 transitioning_player_pos_x;
-UINT16 transitioning_player_pos_y;
+INT16 transitioning_player_pos_x;
+INT16 transitioning_player_pos_y;
 
 void enable_transition_to_scene(void) BANKED {
 	camera_settings &= ~(CAMERA_LOCK_FLAG);
@@ -57,7 +57,7 @@ void check_transition_to_scene_collision(void) BANKED {
 		if (transitioning_player_pos_y != PLAYER.pos.y)
 		{
 			transitioning_player_pos_y = 0xFFF;
-			if ((PLAYER.pos.y) > 0xFFF || (PLAYER.pos.y) < HALF_TRANSITION_DISTANCE){
+			if ((PLAYER.pos.y) < HALF_TRANSITION_DISTANCE){
 				transition_to_scene_modal(DIRECTION_UP);				
 			} else if (PLAYER.pos.y > ((image_tile_height << 7) - HALF_TRANSITION_DISTANCE)){
 				transition_to_scene_modal(DIRECTION_DOWN);		
@@ -66,7 +66,7 @@ void check_transition_to_scene_collision(void) BANKED {
 		if (transitioning_player_pos_x != PLAYER.pos.x)
 		{
 			transitioning_player_pos_x = 0xFFF;
-			if ((PLAYER.pos.x) > 0xFFF){
+			if ((PLAYER.pos.x) < 0){
 				transition_to_scene_modal(DIRECTION_LEFT);
 			} else if (PLAYER.pos.x > ((image_tile_width << 7) - TRANSITION_DISTANCE)){
 				transition_to_scene_modal(DIRECTION_RIGHT);
