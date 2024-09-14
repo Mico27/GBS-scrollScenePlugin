@@ -15,3 +15,6 @@ Also make sure you use a common tileset between the scene that you are scrolling
 
 https://github.com/Mico27/GBS-scrollScenePlugin/assets/32064874/bf08c9e1-6e72-4e7b-8fd9-ec2462bc76a9
 
+Added a new event to be able to store the current scroll offset in a variable. To use to correct a position when writing/submapping to the background.
+![image](https://github.com/user-attachments/assets/b79500f7-afc9-4332-b0d8-b5edb4a005e8)
+![image](https://github.com/user-attachments/assets/d32ed6b6-0464-40a3-8059-fc3864750173)
